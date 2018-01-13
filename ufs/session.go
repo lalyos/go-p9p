@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -28,6 +29,7 @@ func NewSession(ctx context.Context, root string) (p9p.Session, error) {
 }
 
 func (sess *session) getRef(fid p9p.Fid) (*FileRef, error) {
+	log.Println("\n", "---> DEBUG", "getRef")
 	sess.Lock()
 	defer sess.Unlock()
 
@@ -48,6 +50,7 @@ func (sess *session) getRef(fid p9p.Fid) (*FileRef, error) {
 }
 
 func (sess *session) newRef(fid p9p.Fid, path string) (*FileRef, error) {
+	log.Println("\n", "---> DEBUG", "newRef:", path, fid)
 	sess.Lock()
 	defer sess.Unlock()
 
@@ -71,10 +74,12 @@ func (sess *session) newRef(fid p9p.Fid, path string) (*FileRef, error) {
 
 func (sess *session) Auth(ctx context.Context, afid p9p.Fid, uname, aname string) (p9p.Qid, error) {
 	// TODO: AuthInit?
+	log.Println("\n", "---> DEBUG", "Auth")
 	return p9p.Qid{}, nil //p9p.MessageRerror{Ename: "no auth"}
 }
 
 func (sess *session) Attach(ctx context.Context, fid, afid p9p.Fid, uname, aname string) (p9p.Qid, error) {
+	log.Println("\n", "---> DEBUG", "Attach")
 	if uname == "" {
 		return p9p.Qid{}, p9p.MessageRerror{Ename: "no user"}
 	}
@@ -98,6 +103,7 @@ func (sess *session) Attach(ctx context.Context, fid, afid p9p.Fid, uname, aname
 }
 
 func (sess *session) Clunk(ctx context.Context, fid p9p.Fid) error {
+	log.Println("\n", "---> DEBUG", "Clunk")
 	ref, err := sess.getRef(fid)
 	if err != nil {
 		return err
@@ -117,6 +123,7 @@ func (sess *session) Clunk(ctx context.Context, fid p9p.Fid) error {
 }
 
 func (sess *session) Remove(ctx context.Context, fid p9p.Fid) error {
+	log.Println("\n", "---> DEBUG", "Remove")
 	defer sess.Clunk(ctx, fid)
 
 	ref, err := sess.getRef(fid)
@@ -130,6 +137,7 @@ func (sess *session) Remove(ctx context.Context, fid p9p.Fid) error {
 }
 
 func (sess *session) Walk(ctx context.Context, fid p9p.Fid, newfid p9p.Fid, names ...string) ([]p9p.Qid, error) {
+	log.Println("\n", "---> DEBUG", "Walk")
 	var qids []p9p.Qid
 
 	ref, err := sess.getRef(fid)
@@ -158,6 +166,7 @@ func (sess *session) Walk(ctx context.Context, fid p9p.Fid, newfid p9p.Fid, name
 }
 
 func (sess *session) Read(ctx context.Context, fid p9p.Fid, p []byte, offset int64) (n int, err error) {
+	log.Println("\n", "---> DEBUG", "Read")
 	ref, err := sess.getRef(fid)
 	if err != nil {
 		return 0, err
@@ -196,6 +205,7 @@ func (sess *session) Read(ctx context.Context, fid p9p.Fid, p []byte, offset int
 }
 
 func (sess *session) Write(ctx context.Context, fid p9p.Fid, p []byte, offset int64) (n int, err error) {
+	log.Println("\n", "---> DEBUG", "Write")
 	ref, err := sess.getRef(fid)
 	if err != nil {
 		return 0, err
@@ -211,6 +221,7 @@ func (sess *session) Write(ctx context.Context, fid p9p.Fid, p []byte, offset in
 }
 
 func (sess *session) Open(ctx context.Context, fid p9p.Fid, mode p9p.Flag) (p9p.Qid, uint32, error) {
+	log.Println("\n", "---> DEBUG", "Open")
 	ref, err := sess.getRef(fid)
 	if err != nil {
 		return p9p.Qid{}, 0, err
@@ -227,6 +238,7 @@ func (sess *session) Open(ctx context.Context, fid p9p.Fid, mode p9p.Flag) (p9p.
 }
 
 func (sess *session) Create(ctx context.Context, parent p9p.Fid, name string, perm uint32, mode p9p.Flag) (p9p.Qid, uint32, error) {
+	log.Println("\n", "---> DEBUG", "Create")
 	ref, err := sess.getRef(parent)
 	if err != nil {
 		return p9p.Qid{}, 0, err
@@ -267,6 +279,7 @@ func (sess *session) Create(ctx context.Context, parent p9p.Fid, name string, pe
 }
 
 func (sess *session) Stat(ctx context.Context, fid p9p.Fid) (p9p.Dir, error) {
+	log.Println("\n", "---> DEBUG", "Stat")
 	ref, err := sess.getRef(fid)
 	if err != nil {
 		return p9p.Dir{}, err
@@ -275,6 +288,7 @@ func (sess *session) Stat(ctx context.Context, fid p9p.Fid) (p9p.Dir, error) {
 }
 
 func (sess *session) WStat(ctx context.Context, fid p9p.Fid, dir p9p.Dir) error {
+	log.Println("\n", "---> DEBUG", "WStat")
 	ref, err := sess.getRef(fid)
 	if err != nil {
 		return err
@@ -353,5 +367,6 @@ func (sess *session) WStat(ctx context.Context, fid p9p.Fid, dir p9p.Dir) error 
 }
 
 func (sess *session) Version() (msize int, version string) {
+	log.Println("\n", "---> DEBUG", "Version")
 	return p9p.DefaultMSize, p9p.DefaultVersion
 }
